@@ -5,6 +5,8 @@ on:
     branches:
       - hackathon # Trigger on pushes to the main branch
 
+
+
 env:
   PROJECT_ID: "glass-sylph-477607-e9"
   CLUSTER_NAME: "gke-cluster"
@@ -47,6 +49,7 @@ jobs:
           location: ${{ env.CLUSTER_LOCATION }}
 
       - name: Deploy to GKE
+        working-directory: ./order-service/manifests
         run: |
-          kubectl set image deployment/${{ env.IMAGE_NAME }} ${{ env.IMAGE_NAME }}="${CLUSTER_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${GAR_REPOSITORY}/${IMAGE_NAME}:${IMAGE_TAG}" -n default
+          kubectl set image deployment/${{ env.IMAGE_NAME }} ${{ env.IMAGE_NAME }}="${CLUSTER_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${GAR_REPOSITORY}/${IMAGE_NAME}:${IMAGE_TAG}" --record || kubectl apply -f deployment.yaml
           kubectl rollout status deployment/${{ env.IMAGE_NAME }} -n default
