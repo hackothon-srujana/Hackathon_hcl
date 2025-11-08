@@ -3,15 +3,15 @@ name: Deploy to GKE via GAR
 on:
   push:
     branches:
-      - main # Trigger on pushes to the main branch
+      - hackathon # Trigger on pushes to the main branch
 
 env:
   PROJECT_ID: "glass-sylph-477607-e9"
   CLUSTER_NAME: "gke-cluster"
   CLUSTER_LOCATION: "us-central1"
-  GAR_REPOSITORY: "us-central1-docker.pkg.dev/glass-sylph-477607-e9"
+  GAR_REPOSITORY: "java-app"
   IMAGE_NAME: "java-app"
-  IMAGE_TAG: ${{ github.sha }} # Use Git commit SHA as image tag
+  IMAGE_TAG: "381328d733f4ae8e089a8693d9fe44b056493d4d" # Use Git commit SHA as image tag
 
 jobs:
   deploy:
