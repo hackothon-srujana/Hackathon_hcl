@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+spec:
+  rules:
+  - http: 
+      paths:
+      - path: /api/node1
+        pathType: Prefix
+        backend:
+          service:
+            name: application-service
+            port:
+              number: 8081
+      - path: /api/node2
+        pathType: Prefix
+        backend:
+          service:
+            name: patient-service
+            port:
+              number: 8082
+      - path: /api/java
+        pathType: Prefix
+        backend:
+          service:
+            name: order-service
+            port:
+              number: 8080
