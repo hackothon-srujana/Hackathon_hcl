@@ -1,26 +1,36 @@
 # Stage 1: Build the application
-FROM maven:3.8.4-openjdk-17 AS build
+FROM node:lts-alpine AS builder
 
-# Set the working directory in the container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the pom.xml and the project files to the container
-# This step is optimized to leverage Docker's layer caching.
-# Copying pom.xml first allows caching of dependencies if only source code changes.
-COPY pom.xml .
-COPY src ./src
+# Copy package.json and package-lock.json (if present) to leverage Docker's cache
+COPY package*.json ./
 
-# Build the application using Maven
-RUN mvn clean package -DskipTests
+# Install project dependencies
+RUN npm install
 
-# Stage 2: Create the runtime image
-FROM openjdk:17-jre-slim
+# Copy the rest of the application code
+COPY . .
 
-# Set the working directory in the container
+# Run the build command (e.g., for a React, Angular, or Vue application)
+# Adjust this command based on your project's build script
+RUN npm run build
+
+# Stage 2: Create the final production image
+FROM node:lts-alpine AS runner
+
+# Set the working directory
 WORKDIR /app
 
-# Copy the built JAR file from the previous stage to the current stage
-COPY --from=build /app/target/*.jar app.jar
+# Copy only the necessary build artifacts from the builder stage
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
 
-# Set the command to run the application
-CMD ["java", "-jar", "app.jar"]
+# Expose the port your application listens on
+EXPOSE 3000
+
+# Command to run the application in production
+# Adjust this based on how your application starts (e.g., serving static files or running a Node.js server)
+CMD ["npm", "start"]

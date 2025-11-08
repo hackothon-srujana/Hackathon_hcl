@@ -1,9 +1,9 @@
-name: Build Java App and Push to GCR
+name: Build Node App and Push to GCR
 
 on:
   push:
     branches:
-      - main # Trigger on pushes to the main branch
+      - hackothon # Trigger on pushes to the main branch
 
 defaults:
   run:
@@ -27,19 +27,18 @@ jobs:
       - name: Build Java application with Maven
         run: mvn clean package -DskipTests # Build the JAR, skipping tests for speed
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
       - name: Configure Docker to use gcloud as a credential helper
         run: |-
-          gcloud auth configure-docker --quiet
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
       - name: Build and push Docker image to GCR
         env:
-          IMAGE_NAME: us-central1-docker.pkg.dev//${{ secrets.GCP_PROJECT_ID }}/my-java-app:${{ github.sha }}
+          IMAGE_NAME: us-central1-docker.pkg.dev/glass-sylph-477607-e9/node1-app/node1-app:${{ github.sha }}
         run: |-
           docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
