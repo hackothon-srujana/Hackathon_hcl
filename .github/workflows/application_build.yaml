@@ -5,6 +5,10 @@ on:
     branches:
       - main # Trigger on pushes to the main branch
 
+defaults:
+  run:
+    working-directory: ./application-service
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
