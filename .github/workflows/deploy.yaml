@@ -1,0 +1,50 @@
+name: Deploy to GKE via GAR
+
+on:
+  push:
+    branches:
+      - main # Trigger on pushes to the main branch
+
+env:
+  PROJECT_ID: "glass-sylph-477607-e9"
+  CLUSTER_NAME: "gke-cluster"
+  CLUSTER_LOCATION: "us-central1"
+  GAR_REPOSITORY: "us-central1-docker.pkg.dev/glass-sylph-477607-e9"
+  IMAGE_NAME: "java-app"
+  IMAGE_TAG: ${{ github.sha }} # Use Git commit SHA as image tag
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write' # Required for Workload Identity Federation
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 3: Authenticate with GCP
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image to GAR
+        run: |
+          
+          docker push "${CLUSTER_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${GAR_REPOSITORY}/${IMAGE_NAME}:${IMAGE_TAG}"
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ env.CLUSTER_NAME }}
+          location: ${{ env.CLUSTER_LOCATION }}
+
+      - name: Deploy to GKE
+        run: |
+          kubectl set image deployment/${{ env.IMAGE_NAME }} ${{ env.IMAGE_NAME }}="${CLUSTER_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${GAR_REPOSITORY}/${IMAGE_NAME}:${IMAGE_TAG}" -n default
+          kubectl rollout status deployment/${{ env.IMAGE_NAME }} -n default
