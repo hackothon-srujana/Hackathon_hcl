@@ -3,7 +3,7 @@ name: Terraform with GCP
 on:
   push:
     branches:
-      - hackathon
+      - main
 defaults:
   run:
     working-directory: ./terraform

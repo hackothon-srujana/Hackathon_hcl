@@ -10,7 +10,7 @@ resource "google_kms_key_ring" "key_ring" {
   depends_on = [google_project_service.kms_api]
   name       = "gke-keyring"
   location   = "global" # Choose an appropriate location
-  project    = "your-gcp-project-id" # Replace with your project ID
+  project    = var.project_id # Replace with your project ID
 }
 
 # Define a Google Cloud KMS CryptoKey within the KeyRing
