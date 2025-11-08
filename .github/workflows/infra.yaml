@@ -3,10 +3,10 @@ name: Terraform CI/CD
 on:
   pull_request:
     branches:
-      - main
+      - hackathon
   push:
     branches:
-      - main
+      - hackathon
 
 jobs:
   terraform:
