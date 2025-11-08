@@ -26,12 +26,11 @@ jobs:
 
       - name: Build Java application with Maven
         run: mvn clean package -DskipTests # Build the JAR, skipping tests for speed
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+        
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          workload_identity_provider: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
       - name: Configure Docker to use gcloud as a credential helper
         run: |-
