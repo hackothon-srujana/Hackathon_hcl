@@ -26,7 +26,7 @@ jobs:
 
       - name: Build Java application with Maven
         run: mvn clean package -DskipTests # Build the JAR, skipping tests for speed
-        
+
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v1
         with:
@@ -38,7 +38,7 @@ jobs:
 
       - name: Build and push Docker image to GCR
         env:
-          IMAGE_NAME: us-central1-docker.pkg.dev//${{ secrets.GCP_PROJECT_ID }}/my-java-app:${{ github.sha }}
+          IMAGE_NAME: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/my-java-app:${{ github.sha }}
         run: |-
           docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
