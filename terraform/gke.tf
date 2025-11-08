@@ -1,72 +1,33 @@
-module "gke" {
-  source                     = "terraform-google-modules/kubernetes-engine/google"
-  project_id                 = var.project_id
-  name                       = var.gke_cluster_name
-  region                     = "us-central1"
-  zones                      = ["us-central1-a", "us-central1-b", "us-central1-f"]
-  network                    = var.network
-  subnetwork                 = var.subnetwork
-  kms                        = google_kms_crypto_key.crypto_key.id
-  
-  
+resource "google_service_account" "default" {
+  account_id   = "service-account-id"
+  display_name = "Service Account"
+}
 
-  node_pools = [
-    {
-      name                        = "node-pool1"
-      machine_type                = "e2-medium"
-      node_locations              = "us-central1-b,us-central1-c"
-      min_count                   = 1
-      max_count                   = 2
-      disk_size_gb                = 100
-      disk_type                   = "pd-standard"
-      image_type                  = "COS_CONTAINERD"
-      auto_repair                 = true
-      auto_upgrade                = true
-      #service_account             = "gke-sa@<PROJECT ID>.iam.gserviceaccount.com"
-      preemptible                 = false
-    },
-  ]
+resource "google_container_cluster" "primary" {
+  name     = "gke-cluster"
+  location = "us-central1"
 
-  node_pools_oauth_scopes = {
-    all = [
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
-    ]
-  }
+  # We can't create a cluster with no node pool defined, but we want to only use
+  # separately managed node pools. So we create the smallest possible default
+  # node pool and immediately delete it.
+  remove_default_node_pool = true
+  initial_node_count       = 1
+}
 
-  node_pools_labels = {
-    all = {}
+resource "google_container_node_pool" "primary_preemptible_nodes" {
+  name       = "node-pool"
+  location   = "us-central1"
+  cluster    = google_container_cluster.primary.name
+  node_count = 1
 
-    default-node-pool = {
-      default-node-pool = true
-    }
-  }
+  node_config {
+    preemptible  = true
+    machine_type = "e2-medium"
 
-  node_pools_metadata = {
-    all = {}
-
-    default-node-pool = {
-      node-pool-metadata-custom-value = "my-node-pool"
-    }
-  }
-
-  node_pools_taints = {
-    all = []
-
-    default-node-pool = [
-      {
-        key    = "default-node-pool"
-        value  = true
-        effect = "PREFER_NO_SCHEDULE"
-      },
-    ]
-  }
-
-  node_pools_tags = {
-    all = []
-
-    default-node-pool = [
-      "default-node-pool",
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
+    oauth_scopes    = [
+      "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
 }
