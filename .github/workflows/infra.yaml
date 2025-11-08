@@ -37,7 +37,7 @@ jobs:
 
       # Step 5: Initialize Terraform
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -upgrade
 
       # Step 6: Terraform Plan
       - name: Terraform Plan
