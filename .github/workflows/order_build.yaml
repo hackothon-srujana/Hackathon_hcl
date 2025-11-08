@@ -3,7 +3,7 @@ name: Build Java App and Push to GCR
 on:
   push:
     branches:
-      - main # Trigger on pushes to the main branch
+      - hackathon # Trigger on pushes to the main branch
 
 defaults:
   run:
