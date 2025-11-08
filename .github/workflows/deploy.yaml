@@ -33,10 +33,10 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push Docker image to GAR
+      - name: push Docker image to GAR
         run: |
           
-          docker push "${CLUSTER_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${GAR_REPOSITORY}/${IMAGE_NAME}:${IMAGE_TAG}"
+          docker pull "${CLUSTER_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${GAR_REPOSITORY}/${IMAGE_NAME}:${IMAGE_TAG}"
 
       - name: Get GKE credentials
         uses: google-github-actions/get-gke-credentials@v2
