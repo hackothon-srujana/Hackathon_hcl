@@ -30,8 +30,10 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
+
+      - name: Configure Docker to use gcloud as a credential helper
+        run: |-
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
       - name: push Docker image to GAR
         run: |
